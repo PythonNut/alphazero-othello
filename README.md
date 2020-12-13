@@ -34,6 +34,54 @@ The goal was to write the simplest and most readable implementation possible.
 * Uses a single GPU on a single node (i.e. it is not distributed)
 * Self-play, evaluation, and training all happen synchronously (unlike in the original AlphaZero)
 
+### Network architecture
+The policy and value network is build using residual blocks of the following form
+```python
+Sequential(
+    SumModule(
+        Sequential(
+            Conv2d(n, k, 3, 1, 1),
+            BatchNorm2d(k),
+            ReLU(),
+            Conv2d(k, k, 3, 1, 1),
+            BatchNorm2d(k),
+            ReLU(),
+        ),
+        Conv2d(n, k, 1, 1, 0),
+    ),
+    ReLU(),
+)
+```
+where `n` of one block equals the `k` of the previous block and the second branch of the `SumModule` is replaced with the identity if `n == k`.
+Five blocks are used and the channels numbers are `[16, 32, 64, 128, 128, 128]`.
+
+The output of the residual tower is then split.
+The branch that computes `pi` is
+```python
+Sequential(
+    Conv2d(128, 16, 1, 1, 0),
+    BatchNorm2d(16),
+    Flatten(),
+    Linear(16 * 8 * 8, 256),
+    BatchNorm1d(256),
+    Linear(256, 8 * 8 + 1),
+    LogSoftmax(dim=1),
+)
+```
+similarly, the branch that computes `v` is
+```python
+Sequential(
+    Conv2d(128, 16, 1, 1, 0),
+    BatchNorm2d(16),
+    Flatten(),
+    Linear(16 * 8 * 8, 256),
+    BatchNorm1d(256),
+    Linear(256, 1),
+    Sigmoid(),
+)
+```
+
+
 References:
 * [AlphaGo Zero paper](https://www.nature.com/articles/nature24270)
 * [AlphaZero paper](http://arxiv.org/abs/1712.01815)
