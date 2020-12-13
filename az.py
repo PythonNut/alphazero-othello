@@ -17,8 +17,10 @@ if torch.cuda.is_available():
 class Board(object):
     DIRECTIONS = list(it.product(*[(-1, 0, 1)] * 2))
     DIRECTIONS.remove((0, 0))
+    POW2 = 2 ** torch.tensor(range(64), dtype=torch.long)
 
     def __init__(self, n=8, board=None):
+        assert n == 8
         if board is None:
             self.n = n
             self.board = torch.zeros((n, n), dtype=torch.int8)
@@ -55,7 +57,10 @@ class Board(object):
     __repr__ = __str__ = display
 
     def rep(self):
-        return str(self).replace(" ", "").replace("\n", "|")
+        return (
+            (self.board.flatten() == 1).long().dot(self.POW2).item(),
+            (self.board.flatten() == -1).long().dot(self.POW2).item(),
+        )
 
     def is_pos_inbounds(self, x, y):
         return 0 <= x < self.n and 0 <= y < self.n
