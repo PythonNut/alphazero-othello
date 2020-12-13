@@ -38,8 +38,8 @@ class Board(object):
     def display(self, axes=False):
         if axes:
             plain = self.display().split("\n")
-            top = " ".join(map(str, range(1, self.n + 1)))
-            left = [" "] + [chr(97 + i) for i in range(self.n)]
+            top = " ".join(chr(97 + i) for i in range(self.n))
+            left = [" "] + list(map(str, range(1, self.n + 1)))
             return "\n".join([f"{a} {b}" for a, b in zip(left, [top] + plain)])
 
         result = []
@@ -512,8 +512,8 @@ class HumanPlayer(Player):
             if move.startswith("p"):
                 move = board.n ** 2
             try:
-                r = ord(move[0]) - 97
-                c = int(move[1]) - 1
+                c = ord(move[0]) - 97
+                r = int(move[1]) - 1
                 move = r * board.n + c
             except:
                 print("failed to parse move")
