@@ -2,6 +2,9 @@
 
 An implementation of the AlphaZero algorithm for playing Othello (aka. Reversi)
 
+<img width=500 src="https://raw.githubusercontent.com/PythonNut/alphazero-othello/main/figures/az_iagno_first_win.png"/>
+Figure 1: The final board after AlphaZero-Othello beat Iagno "Medium" for the first time!
+
 ## What is Othello?
 
 Othello is an abstract strategy board game for two players. 
@@ -115,7 +118,7 @@ The `cpuct` parameter is set at `3` and at the root of the MCTS search, Dirchlet
 ### Results
 
 I have played many games against the trained agent and I have never won.
-The agent reliably beats the Iagno engine on its "Easy" setting but cannot beat Iagno on its "Medium" setting.
+The agent reliably beats the Iagno engine on its "Medium" setting but cannot beat Iagno on its "Hard" setting.
 
 Although the results are not spectacular, they are understandable.
 AlphaGo Zero was trained on 4.9 millions games of self play with 1600 simulations per MCTS while this agent was trained on about 40 thousand games with 25 simulations per MCTS.
