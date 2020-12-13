@@ -117,6 +117,9 @@ The `cpuct` parameter is set at `3` and at the root of the MCTS search, Dirchlet
 I have played many games against the trained agent and I have never won.
 The agent reliably beats the Iagno engine on its "Easy" setting but cannot beat Iagno on its "Medium" setting.
 
+Although the results are not spectacular, they are understandable.
+AlphaGo Zero was trained on 4.9 millions games of self play with 1600 simulations per MCTS while this agent was trained on about 40 thousand games with 25 simulations per MCTS.
+
 ## References
 * [AlphaGo Zero paper](https://www.nature.com/articles/nature24270)
 * [AlphaZero paper](http://arxiv.org/abs/1712.01815)
