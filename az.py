@@ -62,28 +62,22 @@ class Board(object):
             (self.board.flatten() == -1).long().dot(self.POW2).item(),
         )
 
-    def is_pos_inbounds(self, x, y):
-        return 0 <= x < self.n and 0 <= y < self.n
-
-    def _extend_in_dir(self, pos, d, n):
-        return pos[0] + d[0] * n, pos[1] + d[1] * n
-
     def is_move_legal(self, x, y, p=1):
-        if not self.is_pos_inbounds(x, y):
+        if not (0 <= x < self.n and 0 <= y < self.n):
             return False
 
         if self.board[x, y] != 0:
             return False
 
-        for d in self.DIRECTIONS:
+        for dx, dy in self.DIRECTIONS:
             for n in range(1, 8):
-                xp, yp = self._extend_in_dir((x, y), d, n)
-
-                if not self.is_pos_inbounds(xp, yp):
+                xp, yp = x + n * dx, y + n * dy
+                if not (0 <= xp < self.n and 0 <= yp < self.n):
                     break
-                if self.board[xp, yp] == 0 or (n == 1 and self.board[xp, yp] != -p):
+                b = self.board[x + n * dx, y + n * dy]
+                if b == 0 or (n == 1 and b != -p):
                     break
-                if n > 1 and self.board[xp, yp] == p:
+                if n > 1 and b == p:
                     return True
 
     def all_legal_moves(self, p=1):
@@ -103,16 +97,17 @@ class Board(object):
 
         self.board[x, y] = p
 
-        for d in self.DIRECTIONS:
+        for dx, dy in self.DIRECTIONS:
             for n in range(1, 8):
-                xp, yp = self._extend_in_dir((x, y), d, n)
-                if not self.is_pos_inbounds(xp, yp):
+                xp, yp = x + n * dx, y + n * dy
+                if not (0 <= xp < self.n and 0 <= yp < self.n):
                     break
-                if self.board[xp, yp] == 0 or (n == 1 and self.board[xp, yp] != -p):
+                b = self.board[x + n * dx, y + n * dy]
+                if b == 0 or (n == 1 and b != -p):
                     break
-                if n > 1 and self.board[xp, yp] == p:
+                if n > 1 and b == p:
                     for k in range(1, n + 1):
-                        xp, yp = self._extend_in_dir((x, y), d, k)
+                        xp, yp = x + k * dx, y + k * dy
                         self.board[xp, yp] = p
                     break
 
