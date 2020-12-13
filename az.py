@@ -532,6 +532,13 @@ class HumanPlayer(Player):
         return move
 
 
+class RandomPlayer(Player):
+    def __call__(self, board):
+        pi_mask = board.pi_mask()
+        hot = int(torch.distributions.Categorical(pi_mask > 0.5).sample())
+        return hot
+
+
 class Arena(object):
     def __init__(self, p1, p2):
         self.p1, self.p2 = p1, p2
