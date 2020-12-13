@@ -1,0 +1,184 @@
+\documentclass{beamer}
+\usetheme{metropolis}           % Use metropolis theme
+\usepackage{othelloboard}
+\usepackage{graphicx}
+\usefonttheme{serif} % default family is serif
+\usepackage{fontspec}
+\setmainfont{Open Sans}
+\title{AlphaZero-Othello}
+\subtitle{(a truly unoriginal name)}
+\date{\today}
+\author{Jonathan Hayase}
+\institute{University of Washington}
+\begin{document}
+\maketitle
+\section{What is Othello?}
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarrayfourthrow  {0}{0}{0}{1}{2}{0}{0}{0}
+      \othelloarrayfifthrow   {0}{0}{0}{2}{1}{0}{0}{0}
+    \end{othelloboard}
+    \caption{Opening Position}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarraythirdrow   {0}{0}{0}{2}{0}{0}{0}{0}
+      \othelloarrayfourthrow  {0}{0}{0}{2}{2}{0}{0}{0}
+      \othelloarrayfifthrow   {0}{0}{0}{2}{1}{0}{0}{0}
+      \posannotation{D4}{\resizebox{1em}{!}{$\circlearrowright$}}
+    \end{othelloboard}
+    \caption{One option for black's 1\textsuperscript{st} move}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarraythirdrow   {0}{0}{0}{2}{0}{0}{0}{0}
+      \othelloarrayfourthrow  {0}{0}{0}{2}{2}{0}{0}{0}
+      \othelloarrayfifthrow   {0}{0}{0}{2}{1}{0}{0}{0}
+      \posannotation{C3}{C3}
+      \posannotation{E3}{E3}
+      \posannotation{C5}{C5}
+    \end{othelloboard}
+    \caption{All of white's responses}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarraythirdrow   {0}{0}{0}{2}{1}{0}{0}{0}
+      \othelloarrayfourthrow  {0}{0}{0}{2}{1}{0}{0}{0}
+      \othelloarrayfifthrow   {0}{0}{0}{2}{1}{0}{0}{0}
+      \posannotation{E4}{\resizebox{1em}{!}{$\circlearrowright$}}
+      \posannotation{F3}{F3}
+      \posannotation{F4}{F4}
+      \posannotation{F5}{F5}
+    \end{othelloboard}
+    \caption{White chose E3 and all of black's responses}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarraythirdrow   {0}{0}{0}{2}{2}{2}{0}{0}
+      \othelloarrayfourthrow  {0}{0}{0}{2}{2}{0}{0}{0}
+      \othelloarrayfifthrow   {0}{0}{0}{2}{1}{0}{0}{0}
+      \posannotation{E3}{\resizebox{1em}{!}{$\circlearrowright$}}
+      \posannotation{E4}{\resizebox{1em}{!}{$\circlearrowright$}}
+    \end{othelloboard}
+    \caption{Black chose F3}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{What is Othello?}
+  \begin{figure}
+    \centering
+    \begin{othelloboard}{0.7}
+      \dotmarkings
+      \othelloarrayfirstrow   {2}{2}{2}{2}{2}{2}{1}{2}
+      \othelloarraysecondrow  {2}{2}{2}{2}{2}{2}{1}{2}
+      \othelloarraythirdrow   {2}{2}{2}{2}{2}{1}{1}{2}
+      \othelloarrayfourthrow  {2}{2}{1}{2}{1}{2}{1}{2}
+      \othelloarrayfifthrow   {2}{2}{2}{1}{2}{2}{2}{2}
+      \othelloarraysixthrow   {2}{2}{1}{2}{2}{1}{2}{2}
+      \othelloarrayseventhrow {2}{1}{2}{2}{2}{1}{1}{2}
+      \othelloarrayeighthrow  {1}{1}{1}{1}{1}{1}{1}{1}
+    \end{othelloboard}
+    \caption{AZ-O (black, 43) wins against Iagno ``Medium'' (white, 21)}
+  \end{figure}
+\end{frame}
+
+\section{What is AlphaZero?}
+\begin{frame}{What is AlphaZero?}
+  AlphaZero uses a neural network which takes a state \(s\) and computes two things:
+  \begin{enumerate}
+  \item A policy \(p_\theta(s)\) which is a distribution over the set of actions
+  \item A value \(v_\theta(s) \in [-1, 1]\) which predicts the eventual winner of the game
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{What is AlphaZero?}
+  The goal is to minimize the loss
+  \[L(\theta) = \sum_t \left( \left(v_\theta(s_t) - z_t\right )^2 - \hat{\pi}(s_t)^T\log\left(p_\theta(s_t)\right) \right)\]
+  where
+  \begin{enumerate}
+  \item \(z_t\) is the outcome of the game from the perspective of move \(t\)
+  \item \(\hat{\pi}(s_t)\) is an improved policy.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{How to compute an improved policy}
+  In order to calculate \(\hat{\pi}(s)\) we use Monte Carlo Tree Search (MCTS). Define:
+  \begin{enumerate}
+  \item $Q(s, a)$ is the average \(z\) after taking action $a$ from state $s$.
+  \item $N(s, a)$ is the number of times action $a$ was taken at state $s$.
+  \item $P(s, a)$ is the probability of taking \(a\) at state \(s\) (from \(p(s)\))
+  \end{enumerate}
+  choose \(a\) maximizing
+  \[U(s, a) = Q(s, a) + c_{\mathrm{puct}} P(s, a)\frac{\sqrt{\sum_b N(s, b)}}{1 + N(s, a)}\]
+\end{frame}
+
+\section{AlphaZero-Othello?}
+\begin{frame}{What is AlphaZero-Othello?}
+  \begin{enumerate}
+  \item 100\% of the code is written by me
+  \item Multithreaded self-play
+  \item Multithreaded evaluation arena
+  \item Uses a single GPU on a single node (i.e. it is not distributed)
+  \item Self-play, evaluation, and training all happen synchronously (unlike in the original AlphaZero)
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}{Results}
+  \begin{figure}
+    \centering
+    \resizebox{0.8\textwidth}{!}{\input{figures/win_rate_vs_random.pgf}}
+    \caption{Win rate vs random agent}
+    \label{fig:wr}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Results}
+  Current best model (Iteration 43)
+  \begin{enumerate}
+  \item Reliably beats me (a novice)
+  \item Reliably beats Iagno ``Easy''
+  \item Sometimes beats Iagno ``Medium''
+  \item Never beats Iagno ``Hard''
+  \end{enumerate}
+  Conclusion: Not great but it did learn something
+\end{frame}
+
+\begin{frame}{Excuses}
+  \begin{enumerate}
+  \item[Q:] Why doesn't AlphaZero-Othello consistently improve?
+\item[A:] The games of self play for AlphaZero-Othello are probably far too noisy to reliably improve on the policy.
+  \begin{itemize}
+  \item AlphaGo Zero: $7.84 \times 10^9$ MCTS iterations.
+  \item AlphaZero-Othello: $1.075\times10^5$ MCTS iterations.
+  \end{itemize}
+  Solution: crank up the simulation count and (probably) the number of games.
+  \end{enumerate}
+
+  \textit{I am not aware of a very strong Othello agent trained using RL techniques.}
+\end{frame}
+
+
+\end{document}
