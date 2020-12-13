@@ -328,12 +328,13 @@ class PolicyBig(nn.Module):
 
     def predict_board(self, board):
         assert isinstance(board, Board)
-        log_pi, v = self.forward(
-            board.board.reshape(1, 1, board.n, board.n)
-            .float()
-            .to(self.residual_tower[0].weight.device)
-        )
-        return log_pi.detach().squeeze().exp().cpu(), v.detach().item()
+        with torch.no_grad():
+            log_pi, v = self.forward(
+                board.board.reshape(1, 1, board.n, board.n)
+                .float()
+                .to(self.residual_tower[0].weight.device)
+            )
+            return log_pi.detach().squeeze().exp().cpu(), v.detach().item()
 
 
 class SelfPlayDataset(torch.utils.data.Dataset):
