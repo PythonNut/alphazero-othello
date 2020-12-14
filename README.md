@@ -1,9 +1,9 @@
 # AlphaZero-Othello
 
-An implementation of the AlphaZero algorithm for playing Othello (aka. Reversi)
+An implementation of the AlphaZero algorithm that plays Othello (aka. Reversi)
 
 <img width=500 src="https://raw.githubusercontent.com/PythonNut/alphazero-othello/main/figures/az_iagno_first_win.png"/>
-Figure 1: The final board after AlphaZero-Othello beat Iagno "Medium" for the first time!
+Figure 1: The final board after AlphaZero-Othello beat Iagno (Medium difficulty) for the first time!
 
 ## What is Othello?
 
@@ -36,8 +36,8 @@ where `zₜ` is the outcome of the game (from perspective of time `t`) and `̂π
 In order to calculate `̂π(s)` we use Monte Carlo Tree Search (MCTS).
 To explain how this works, define
 
-* `Q(s, a)` is the average reward after following action `a` from state `s`.
-* `N(s, a)` is the number of times action `a` was chosen at state `s`.
+* `Q(s, a)` is the average reward after taking action `a` from state `s`.
+* `N(s, a)` is the number of times action `a` was taken at state `s`.
 * `P(s, a)` is the probability of taking action `a` from state `s` (according to `p(s)`)
 
 These quantities (which are just implemented using hash tables in practice) are used to calculate
@@ -118,7 +118,7 @@ The `cpuct` parameter is set at `3` and at the root of the MCTS search, Dirchlet
 ### Results
 
 I have played many games against the trained agent and I have never won.
-The agent reliably beats the Iagno engine on its "Medium" setting but cannot beat Iagno on its "Hard" setting.
+The agent is able to beat the Iagno engine on "Medium" difficulty but cannot beat Iagno on "Hard" difficulty.
 
 Although the results are not spectacular, they are understandable.
 AlphaGo Zero was trained on 4.9 millions games of self play with 1600 simulations per MCTS while this agent was trained on about 40 thousand games with 25 simulations per MCTS.
