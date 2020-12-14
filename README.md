@@ -123,6 +123,10 @@ The agent reliably beats the Iagno engine on its "Medium" setting but cannot bea
 Although the results are not spectacular, they are understandable.
 AlphaGo Zero was trained on 4.9 millions games of self play with 1600 simulations per MCTS while this agent was trained on about 40 thousand games with 25 simulations per MCTS.
 
+## Demo
+
+Upload `demo.ipynb` to Google Colab and play against the trained agent!
+
 ## References
 * [AlphaGo Zero paper](https://www.nature.com/articles/nature24270)
 * [AlphaZero paper](http://arxiv.org/abs/1712.01815)
