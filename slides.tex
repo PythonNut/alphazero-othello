@@ -131,7 +131,7 @@
   \item $N(s, a)$ is the number of times action $a$ was taken at state $s$.
   \item $P(s, a)$ is the probability of taking \(a\) at state \(s\) (from \(p(s)\))
   \end{enumerate}
-  choose \(a\) maximizing
+  choose \(a\) maximizing the Upper Confidence Bound
   \[U(s, a) = Q(s, a) + c_{\mathrm{puct}} P(s, a)\frac{\sqrt{\sum_b N(s, b)}}{1 + N(s, a)}\]
 \end{frame}
 
@@ -180,5 +180,5 @@
   \textit{I am not aware of a very strong Othello agent trained using RL techniques.}
 \end{frame}
 
-
+\section{Thank you!}
 \end{document}
