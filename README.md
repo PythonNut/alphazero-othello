@@ -125,7 +125,7 @@ AlphaGo Zero was trained on 4.9 millions games of self play with 1600 simulation
 
 ## Demo
 
-Upload `demo.ipynb` to Google Colab and play against the trained agent!
+Run [`demo.ipynb`](https://colab.research.google.com/github/PythonNut/alphazero-othello/blob/master/demo.ipynb) on Google Colab!
 
 ## References
 * [AlphaGo Zero paper](https://www.nature.com/articles/nature24270)
