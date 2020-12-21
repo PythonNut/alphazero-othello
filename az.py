@@ -81,7 +81,7 @@ class Board(object):
                     return True
 
     def all_legal_moves(self, p=1):
-        ind = torch.zeros((self.n, self.n), dtype=torch.uint8)
+        ind = torch.zeros((self.n, self.n), dtype=torch.bool)
         for i, j in it.product(*[range(self.n)] * 2):
             if self.is_move_legal(i, j, p):
                 ind[i, j] = 1
@@ -227,6 +227,12 @@ class Policy(nn.Module):
         )
         return log_pi.detach().squeeze().exp().cpu(), v.detach().item()
 
+class Mish(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return x *(torch.tanh(F.softplus(x)))
 
 class PolicyBig(nn.Module):
     def __init__(self, n=8, channels=10):
@@ -240,70 +246,99 @@ class PolicyBig(nn.Module):
                 nn.Sequential(
                     nn.Conv2d(16, 32, 3, 1, 1),
                     nn.BatchNorm2d(32),
-                    nn.ReLU(),
+                    Mish(),
                     nn.Conv2d(32, 32, 3, 1, 1),
                     nn.BatchNorm2d(32),
-                    nn.ReLU(),
                 ),
                 nn.Conv2d(16, 32, 1, 1, 0),
             ),
-            nn.ReLU(),
+            Mish(),
             SumModule(
                 nn.Sequential(
                     nn.Conv2d(32, 64, 3, 1, 1),
                     nn.BatchNorm2d(64),
-                    nn.ReLU(),
+                    Mish(),
                     nn.Conv2d(64, 64, 3, 1, 1),
                     nn.BatchNorm2d(64),
-                    nn.ReLU(),
                 ),
                 nn.Conv2d(32, 64, 1, 1, 0),
             ),
-            nn.ReLU(),
+            Mish(),
             SumModule(
                 nn.Sequential(
                     nn.Conv2d(64, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
+                    Mish(),
                     nn.Conv2d(128, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
                 ),
                 nn.Conv2d(64, 128, 1, 1, 0),
             ),
-            nn.ReLU(),
+            Mish(),
             SumModule(
                 nn.Sequential(
                     nn.Conv2d(128, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
+                    Mish(),
                     nn.Conv2d(128, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
                 ),
                 nn.Sequential(),
             ),
-            nn.ReLU(),
+            Mish(),
             SumModule(
                 nn.Sequential(
                     nn.Conv2d(128, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
+                    Mish(),
                     nn.Conv2d(128, 128, 3, 1, 1),
                     nn.BatchNorm2d(128),
-                    nn.ReLU(),
                 ),
                 nn.Sequential(),
             ),
-            nn.ReLU(),
+            Mish(),
+            SumModule(
+                nn.Sequential(
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                    Mish(),
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                ),
+                nn.Sequential(),
+            ),
+            Mish(),
+            SumModule(
+                nn.Sequential(
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                    Mish(),
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                ),
+                nn.Sequential(),
+            ),
+            Mish(),
+            SumModule(
+                nn.Sequential(
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                    Mish(),
+                    nn.Conv2d(128, 128, 3, 1, 1),
+                    nn.BatchNorm2d(128),
+                ),
+                nn.Sequential(),
+            ),
+            Mish(),
         )
 
         self.pi_tower = nn.Sequential(
             nn.Conv2d(128, 16, 1, 1, 0),
             nn.BatchNorm2d(16),
+            Mish(),
             nn.Flatten(),
             nn.Linear(16 * 8 * 8, 256),
-            nn.BatchNorm1d(256),
+            Mish(),
             nn.Linear(256, n ** 2 + 1),
             nn.LogSoftmax(dim=1),
         )
@@ -311,11 +346,12 @@ class PolicyBig(nn.Module):
         self.v_tower = nn.Sequential(
             nn.Conv2d(128, 16, 1, 1, 0),
             nn.BatchNorm2d(16),
+            Mish(),
             nn.Flatten(),
             nn.Linear(16 * 8 * 8, 256),
-            nn.BatchNorm1d(256),
+            Mish(),
             nn.Linear(256, 1),
-            nn.Sigmoid(),
+            nn.Tanh(),
         )
 
         self.eval()

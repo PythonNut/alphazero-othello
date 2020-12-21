@@ -106,7 +106,7 @@ Sequential(
     Linear(16 * 8 * 8, 256),
     BatchNorm1d(256),
     Linear(256, 1),
-    Sigmoid(),
+    Tanh(),
 )
 ```
 ### Parameters
