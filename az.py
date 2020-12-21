@@ -673,7 +673,7 @@ class Coach(object):
         board = Board()
         p = 1
         step = 0
-        mcts = MCTS(nnet)
+        mcts = MCTS(nnet, numMCTSSims=250)
 
         while True:
             step += 1
@@ -696,7 +696,6 @@ class Coach(object):
                 rs = [r * (-1) ** (x[2] != p) for x in examples]
                 torch.cuda.empty_cache()
                 return sbs, sps, rs
-                # return [(x[0], x[1], r * ((-1) ** (x[2] != p))) for x in examples]
 
     def learn(self):
         for i in range(self.startIter, self.numIters + 1):
@@ -730,11 +729,12 @@ class Coach(object):
 
             torch.save(self.nnet.state_dict(), self.checkpoint / "temp.pt")
             self.pnet.load_state_dict(torch.load(self.checkpoint / "temp.pt"))
-            pmp = MCTSPlayer(self.pnet)
+            pmp = MCTSPlayer(self.pnet, numMCTSSims=250)
 
             train(self.nnet, examples)
+            torch.save(self.nnet.state_dict(), self.checkpoint / f"iter{i:05d}.pt")
 
-            nmp = MCTSPlayer(self.nnet)
+            nmp = MCTSPlayer(self.nnet, numMCTSSims=250)
             arena = Arena(pmp, nmp)
             pwins, nwins, draws = arena.play_nktimes(self.arenaCompare // 8, 8)
             print(f"n/p wins: {nwins} / {pwins} ({draws} draws)")
@@ -744,7 +744,6 @@ class Coach(object):
                 self.nnet.load_state_dict(torch.load(self.checkpoint / "temp.pt"))
             else:
                 print("accepting new model")
-                torch.save(self.nnet.state_dict(), self.checkpoint / f"iter{i:05d}.pt")
                 torch.save(self.nnet.state_dict(), self.checkpoint / f"best.pt")
 
     def save_examples(self, i):
