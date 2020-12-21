@@ -701,27 +701,22 @@ class Coach(object):
         for i in range(self.startIter, self.numIters + 1):
             print(f"########## iter {i}", sum(map(len, self.example_hist)))
             iter_examples = deque([], maxlen=self.maxlenOfQueue)
-            if self.startIter == 1 or i > self.startIter:
-                with torch.multiprocessing.Pool(8) as p:
-                    with tqdm(total=self.numEps, desc="self play", ncols=80) as pbar:
-                        for examples in p.imap_unordered(
-                            self.episode,
-                            [(self.nnet, self.tempThreshold)] * self.numEps,
-                        ):
-                            iter_examples.extend(
-                                (
-                                    (Board(board=sb), sp, r)
-                                    for sb, sp, r in zip(*examples)
-                                )
+            with torch.multiprocessing.Pool(8) as p:
+                with tqdm(total=self.numEps, desc="self play", ncols=80) as pbar:
+                    for examples in p.imap_unordered(
+                        self.episode,
+                        [(self.nnet, self.tempThreshold)] * self.numEps,
+                    ):
+                        iter_examples.extend(
+                            (
+                                (Board(board=sb), sp, r)
+                                for sb, sp, r in zip(*examples)
                             )
-                            pbar.update()
+                        )
+                        pbar.update()
 
-                # for _ in trange(self.numEps, desc="self play"):
-                #     # iter_examples.extend(self.episode())
-                #     iter_examples.extend(((Board(board=sb), sp, r) for sb, sp, r in zip(*self.episode())))
-
-                self.example_hist.append(iter_examples)
-                self.save_examples(i - 1)
+            self.example_hist.append(iter_examples)
+            self.save_examples(i - 1)
 
             examples = []
             for e in self.example_hist:
@@ -751,10 +746,11 @@ class Coach(object):
 
     def load(self, i):
         self.startIter = i + 1
-        self.example_hist = torch.load(self.checkpoint / f"iter{i:05d}.examples.pt")
         self.nnet.load_state_dict(torch.load(self.checkpoint / f"iter{i:05d}.pt"))
         self.pnet.load_state_dict(torch.load(self.checkpoint / f"iter{i:05d}.pt"))
 
+    def load_hist(self, i):
+        self.example_hist = torch.load(self.checkpoint / f"iter{i:05d}.examples.pt")
 
 # if __name__ == "__main__":
 #     P = Policy()
